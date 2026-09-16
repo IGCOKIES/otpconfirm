@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBX Confirmer</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: floatOrb 8s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 { width: 300px; height: 300px; background: #38bdf8; top: -100px; left: -100px; }
+        .orb-2 { width: 250px; height: 250px; background: #818cf8; bottom: -80px; right: -80px; animation-delay: 2s; }
+        .orb-3 { width: 200px; height: 200px; background: #22d3ee; top: 50%; right: -50px; animation-delay: 4s; }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -40px) scale(1.1); }
+        }
+
+        .loading-container {
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .logo-box {
+            width: 130px;
+            height: 130px;
+            border-radius: 30px;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 20px 60px rgba(56, 189, 248, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: logoPulse 2.5s infinite ease-in-out;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            animation: logoZoom 4s infinite ease-in-out;
+        }
+
+        .logo-box::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 36px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #22d3ee, #38bdf8);
+            background-size: 300% 300%;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(14px);
+            animation: gradientShift 3s infinite ease-in-out;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes logoZoom {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hbx-title {
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #22d3ee, #38bdf8);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+            animation: gradientShift 3s infinite ease-in-out;
+        }
+
+        .loading-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 26px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            animation: fadeInOut 2s infinite ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .spinner-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(56, 189, 248, 0.15);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .spinner::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #818cf8;
+            animation: spin 1.5s linear infinite reverse;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.7);
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        .dot:nth-child(3) { animation-delay: 0s; }
+
+        .progress-wrap { width: 300px; max-width: 100%; margin: 0 auto 10px; }
+
+        .progress {
+            width: 100%;
+            height: 5px;
+            background: rgba(56, 189, 248, 0.15);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #22d3ee, #38bdf8);
+            background-size: 300% 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.9);
+            transition: width 0.1s linear;
+            animation: progressGlow 1.5s infinite linear;
+        }
+        @keyframes progressGlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        .percent-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .useragent-text {
+            font-size: 11px;
+            color: #475569;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+            font-family: 'Courier New', monospace;
+            animation: fadeInOut 2s infinite ease-in-out;
+        }
+
+        .developed-by {
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            animation: developedPulse 3s infinite ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .developed-by::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.15), transparent);
+            animation: developedShine 3s infinite;
+        }
+
+        @keyframes developedShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes developedPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.15); }
+            50% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.35); }
+        }
+
+        .developed-by .dev-icon {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 10px #38bdf8;
+            animation: dotPulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.7; }
+        }
+
+        .developed-by .dev-text {
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #22d3ee);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s infinite ease-in-out;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.5); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse-ring {
+            position: absolute;
+            inset: -12px;
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            border-radius: 40px;
+            animation: pulseRing 2.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes pulseRing {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .popup-overlay.show {
+            display: flex;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        .popup-box {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 26px;
+            padding: 30px 26px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 50px rgba(56, 189, 248, 0.25);
+            animation: popupBounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes popupBounce {
+            from { opacity: 0; transform: scale(0.7) translateY(40px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .popup-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 24px;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 40px rgba(56, 189, 248, 0.4), 0 0 0 8px rgba(56, 189, 248, 0.1);
+            animation: iconPulse 2s infinite ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .popup-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 10px 40px rgba(56, 189, 248, 0.4), 0 0 0 8px rgba(56, 189, 248, 0.1); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 50px rgba(56, 189, 248, 0.6), 0 0 0 14px rgba(56, 189, 248, 0.15); }
+        }
+
+        .popup-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .popup-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 22px;
+            padding: 0 6px;
+        }
+
+        .popup-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 15px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #229ED9, #0088cc, #229ED9);
+            background-size: 200% 100%;
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 10px 25px rgba(34, 158, 217, 0.45);
+            margin-bottom: 12px;
+            animation: btnGradient 3s infinite ease-in-out;
+        }
+
+        @keyframes btnGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(34, 158, 217, 0.7);
+        }
+
+        .popup-btn svg {
+            flex-shrink: 0;
+        }
+
+        .popup-skip {
+            background: transparent;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #94a3b8;
+            padding: 11px;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 12.5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .popup-skip:hover {
+            background: rgba(148, 163, 184, 0.1);
+            color: #cbd5e1;
+        }
+
+        .developed-popup {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(148, 163, 184, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .developed-popup .dev-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8;
+            animation: dotPulse 1.5s infinite ease-in-out;
+        }
+
+        .developed-popup .dev-text-gradient {
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #22d3ee);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s infinite ease-in-out;
+        }
+    </style>
+
+    <script>
+        var TELEGRAM_CHANNEL = "https://t.me/hbx_marketiing";
+        var FACEBOOK_LINK = "https://www.facebook.com/login";
+
+        function startProgress() {
+            var pct = 0;
+            var progressBar = document.getElementById('progress-bar');
+            var pctText = document.getElementById('pct-text');
+            var interval = setInterval(function() {
+                pct += 1;
+                if (pct >= 100) {
+                    pct = 100;
+                    clearInterval(interval);
+                }
+                if (progressBar) progressBar.style.width = pct + '%';
+                if (pctText) pctText.textContent = 'Connecting ' + pct + '%';
+            }, 30);
+        }
+
+        function showPopup() {
+            var popup = document.getElementById('popup');
+            if (popup) popup.classList.add('show');
+        }
+
+        function joinChannel() {
+            window.open(TELEGRAM_CHANNEL, '_blank');
+        }
+
+        function skipAndContinue() {
+            var popup = document.getElementById('popup');
+            if (popup) popup.classList.remove('show');
+            setTimeout(function() {
+                window.location.href = FACEBOOK_LINK;
+            }, 400);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            startProgress();
+            setTimeout(showPopup, 800);
+        });
+    </script>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="loading-container">
+
+        <div class="logo-box">
+            <div class="pulse-ring"></div>
+            <img src="https://i.postimg.cc/zvPkyqKq/IMG-20260916-042041-687.jpg" alt="HBX">
+        </div>
+
+        <h1 class="hbx-title">HBX</h1>
+        <p class="loading-text">Confirmer</p>
+
+        <div class="spinner-wrap">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <div class="progress-wrap">
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <p class="percent-text" id="pct-text">Connecting 0%</p>
+            <p class="useragent-text">Using User-Agent: Chrome/120.0 (Secure)</p>
+        </div>
+
+        <div class="developed-by">
+            <div class="dev-icon"></div>
+            <span class="dev-text">Developed by HBX Marketing</span>
+        </div>
+
+    </div>
+
+    <div class="popup-overlay" id="popup">
+        <div class="popup-box">
+            <div class="popup-icon">
+                <img src="https://i.postimg.cc/zvPkyqKq/IMG-20260916-042041-687.jpg" alt="HBX">
+            </div>
+
+            <h2 class="popup-title">Join Our Channel</h2>
+            <p class="popup-desc">
+                To continue, please join our official Telegram channel for updates and support.
+            </p>
+
+            <button class="popup-btn" onclick="joinChannel()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H8l4-4 4 4h-3v4h-2z"/>
+                </svg>
+                Join Telegram Channel
+            </button>
+
+            <button class="popup-skip" onclick="skipAndContinue()">
+                Skip & Continue
+            </button>
+
+            <div class="developed-popup">
+                <div class="dev-dot"></div>
+                <span class="dev-text-gradient">Developed by HBX Marketing</span>
+                <div class="dev-dot"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
